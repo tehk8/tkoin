@@ -45,6 +45,6 @@ class BlockChain:
         self.chain=[]
         self.chain.append(Block(transac_init))
     def addblock(self,transaction):
-        self.chain.append(Block(transac_init,self.chain[-1].checksum))
+        self.chain.append(Block(transaction,self.chain[-1].checksum))
     def get_transactions(self):
         return [block.get_transaction() for block in self.chain]
