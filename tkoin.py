@@ -14,18 +14,24 @@
 #We used it for "TIPE" ("Travaux d'Interet Personnel Encadre", it is French for "Personal Interest Supervised Work"), it is a part of an exam for MPSI (Mathematics Physics Engineering, in French "Mathematiques Physique Sciences de l'Ingenieur"). It is very experimental and, you should NOT USE that as is for an actual project.
 #It is named "tkoin" because it was made by *T*om Simon and *K*effen Della-Torre, two French students.
 from hashlib import sha256
-def hash(x):
-    return sha256(x).hexdigest()
+def sha(x):
+    return sha256(x).digest()
 
 class Block:
     def __init__(self,transaction,lastcs=None):
         self.transaction=transaction
-        self.lastcs=lastcs or bytes(16)
+        self.lastcs=lastcs or bytes(32)
         if type(transaction)!=bytes or len(transaction)!=2:
             raise Exception("You should provide a 16bit (2bytes) bytes object for transaction")
-        if type(self.lastcs)!=bytes or len(self.lastcs)!=16:
-            raise Exception("You should provide a 256bit (16bytes) bytes object for lastcs")
-        self.checksum=hash(self.transaction+self.lastcs)
+        if type(self.lastcs)!=bytes or len(self.lastcs)!=32:
+            raise Exception("You should provide a 256bit (32bytes) bytes object for lastcs")
+        self.prove=bytes(1)
+        prove_num=0
+        self.checksum=sha(self.transaction+self.lastcs+self.prove)
+        while self.checksum[:3]!=bytes(3):
+            prove_num+=1
+            self.prove=prove_num.to_bytes(4,"big")
+            self.checksum=sha(self.transaction+self.lastcs+self.prove)
     def get_transaction(self):
         fromto,amount=self.transaction[0],self.transaction[1]
         if fromto<128:
